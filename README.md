@@ -6,7 +6,7 @@
 
 An agent's question waits in whichever terminal asked it, so with ten sessions open it is found late or never. Your Attention collects every question into one queue of cards, one at a time, each showing whether its agent is still listening, busy, or offline. An answer routes back to that session within a second, and waits there if the session went offline rather than being lost. Every answer carries a delivery state — stored, delivered, read by the model — because "answered" and "seen" are different facts.
 
-Cards can carry a Mermaid diagram, parsed before the card is shown, so a broken one returns to the agent with the parser's error instead of appearing as an error box. A card can also request a secret: the browser encrypts it for that session, and the model is given a file path rather than a value.
+Cards can carry a Mermaid diagram, parsed before the card is shown, so a broken one returns to the agent with the parser's error instead of appearing as an error box. A card can also request a secret: the browser seals it for that session alone, and each command the session runs gets it as an environment variable the model never sees.
 
 ![One card at a time: a priority queue on the left, the open card on the right](https://raw.githubusercontent.com/elecnix/your-attention/main/docs/screenshot.png)
 
@@ -21,6 +21,8 @@ Indexing is incremental and deterministic — only new lines are parsed, forked 
 Starting a child agent takes one call. Knowing whether it is working, stalled, waiting for input, or already dead is the harder half, and most setups answer it by watching a terminal. Bellwether subscribes to [herdr](https://github.com/herdrdev/herdr) pane state and gives the parent a new turn whenever a child reports, goes idle, blocks, stalls, or exits — five signals with their own settle times, so three seconds of "blocked" is distinguished from ten minutes of silence.
 
 Most of the design handles failure. A child's record reaches disk before herdr is asked to spawn anything, so a crash halfway through still says what was requested. The subscription opens before the snapshot is read, since herdr does not replay events, so a reconnect reconciles instead of assuming continuity. One outbox entry per child lets newer state replace older, marked read only once the parent's context contains it.
+
+[<img src="https://img.shields.io/badge/-181717?logo=github&logoColor=white" height="18" alt="GitHub">](https://github.com/elecnix/bellwether) The [Bellwether documentation](https://elecnix.github.io/bellwether/) covers installation, the events a parent receives, resuming a child, and what a second machine needs.
 
 ## Code review
 
